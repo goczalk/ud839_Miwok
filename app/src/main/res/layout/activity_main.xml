@@ -23,6 +23,11 @@
     tools:context="com.example.android.miwok.MainActivity">
 
     <TextView
+        style="@style/CategoryStyle"
+        android:background="@color/category_miwok"
+        android:text="@string/category_miwok" />
+
+    <TextView
         android:id="@+id/numbers"
         style="@style/CategoryStyle"
         android:background="@color/category_numbers"
