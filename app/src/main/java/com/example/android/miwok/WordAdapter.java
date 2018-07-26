@@ -77,16 +77,6 @@ public class WordAdapter extends ArrayAdapter<Word> {
             imageView.setVisibility(View.GONE);
         }
 
-        LinearLayout wordLinearLayout = (LinearLayout) listItemView.findViewById(R.id.word_linear_layout);
-        wordLinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mediaPlayer = MediaPlayer.create(getContext(), currentWord.getMp3ResourceId());
-                mediaPlayer.start();
-            }
-        });
-
-
         View textContainer = listItemView.findViewById(R.id.text_container);
         int color = ContextCompat.getColor(getContext(), mColorResourceId);
         textContainer.setBackgroundColor(color);
