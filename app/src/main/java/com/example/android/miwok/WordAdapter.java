@@ -1,6 +1,7 @@
 package com.example.android.miwok;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 
 public class WordAdapter extends ArrayAdapter<Word> {
     private int mColorResourceId;
+    private MediaPlayer mediaPlayer;
 
     /**
      * This is our own custom constructor (it doesn't mirror a superclass constructor).
@@ -49,7 +52,7 @@ public class WordAdapter extends ArrayAdapter<Word> {
         }
 
         // Get the {@link AndroidFlavor} object located at this position in the list
-        Word currentWord = getItem(position);
+        final Word currentWord = getItem(position);
 
         // Find the TextView in the list_item.xml layout with the ID version_name
         TextView nameTextView = (TextView) listItemView.findViewById(R.id.miwok_text_view);
@@ -73,6 +76,16 @@ public class WordAdapter extends ArrayAdapter<Word> {
         else{
             imageView.setVisibility(View.GONE);
         }
+
+        LinearLayout wordLinearLayout = (LinearLayout) listItemView.findViewById(R.id.word_linear_layout);
+        wordLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer = MediaPlayer.create(getContext(), currentWord.getMp3ResourceId());
+                mediaPlayer.start();
+            }
+        });
+
 
         View textContainer = listItemView.findViewById(R.id.text_container);
         int color = ContextCompat.getColor(getContext(), mColorResourceId);
