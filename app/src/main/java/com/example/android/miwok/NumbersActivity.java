@@ -30,6 +30,12 @@ public class NumbersActivity extends AppCompatActivity {
     private MediaPlayer mMediaPlayer;
 
     @Override
+    protected void onStop() {
+        super.onStop();
+//        releaseMediaPlayer();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
@@ -63,7 +69,6 @@ public class NumbersActivity extends AppCompatActivity {
         });
 
         mMediaPlayer.setOnCompletionListener(mCompletionListener);
-
     }
 
     /**
