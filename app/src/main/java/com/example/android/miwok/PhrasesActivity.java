@@ -36,6 +36,8 @@ public class PhrasesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
 
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
         final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word("Where are you going?", "minto wuksus", R.raw.phrase_where_are_you_going));
         words.add(new Word("What is your name?", "tinnә oyaase'nә", R.raw.phrase_what_is_your_name));
@@ -59,20 +61,16 @@ public class PhrasesActivity extends AppCompatActivity {
                 Word word = words.get(i);
                 releaseMediaPlayer();
 
-                mMediaPlayer = MediaPlayer.create(PhrasesActivity.this, word.getMp3ResourceId());
-
-                mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 int audioManagerResult = mAudioManager.requestAudioFocus(
                         mOnAudioFocusChangeListener, AudioManager.STREAM_MUSIC,
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
                 if(audioManagerResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mMediaPlayer = MediaPlayer.create(PhrasesActivity.this, word.getMp3ResourceId());
                     mMediaPlayer.start();
                 }
                 mMediaPlayer.setOnCompletionListener(mCompletionListener);
             }
         });
-
-
     }
 
     /**
@@ -89,6 +87,9 @@ public class PhrasesActivity extends AppCompatActivity {
             // setting the media player to null is an easy way to tell that the media player
             // is not configured to play an audio file at the moment.
             mMediaPlayer = null;
+
+            //here because when releasing no audio is played
+            mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
         }
     }
 
@@ -101,34 +102,26 @@ public class PhrasesActivity extends AppCompatActivity {
         public void onCompletion(MediaPlayer mediaPlayer) {
             // Now that the sound file has finished playing, release the media player resources.
             releaseMediaPlayer();
-            mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
         }
     };
 
     private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
         @Override
         public void onAudioFocusChange(int focusChange) {
-            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                 // Pause playback because your Audio Focus was
                 // temporarily stolen, but will be back soon.
                 // i.e. for a phone call
                 mMediaPlayer.pause();
+                mMediaPlayer.seekTo(0);
             } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
                 // Stop playback, because you lost the Audio Focus.
                 // i.e. the user started some other playback app
                 // Remember to unregister your controls/buttons here.
                 // And release the kra — Audio Focus!
                 // You’re done.
-                mMediaPlayer.stop();
-                mAudioManager.abandonAudioFocus(mOnAudioFocusChangeListener);
-            } else if (focusChange ==
-                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                // Lower the volume, because something else is also
-                // playing audio over you.
-                // i.e. for notifications or navigation directions
-                // Depending on your audio playback, you may prefer to
-                // pause playback here instead. You do you.
-                mMediaPlayer.pause();
+                releaseMediaPlayer();
             } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 // Resume playback, because you hold the Audio Focus
                 // again!
